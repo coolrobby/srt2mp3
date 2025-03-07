@@ -76,7 +76,7 @@ def main():
                         asyncio.run(text_to_speech(full_text, voice_code, full_audio_file))
                         audio_files.append(full_audio_file)
 
-                        # 为每行字幕生成单独的音频
+                        # 为每行字幕生成单独的音频（只根据文本内容，不考虑时间轴）
                         for number, text in subtitles:
                             output_file = os.path.join(temp_dir, f"subtitle_{number}.mp3")
                             asyncio.run(text_to_speech(text, voice_code, output_file))
