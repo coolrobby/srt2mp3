@@ -7,22 +7,25 @@ import re
 import zipfile
 import tempfile
 
-# 异步函数：将文本转换为语音
+# 异步函数：将文本转换为语音，确保首尾无静音
 async def text_to_speech(text, voice, output_file):
-    communicate = edge_tts.Communicate(text, voice)
+    # 去除文本首尾的空白字符，避免生成多余静音
+    text = text.strip()
+    communicate = edge_tts.Communicate(text, voice, rate="+0%", pitch="+0Hz")
     await communicate.save(output_file)
     return output_file
 
-# 解析 SRT 内容并提取纯文本和序号
+# 解析 SRT 内容，仅提取序号和文本，忽略时间轴
 def parse_srt(srt_content):
     blocks = re.split(r'\n\n', srt_content.strip())
     subtitles = []
     
     for block in blocks:
         lines = block.split('\n')
-        if len(lines) >= 3:  # 确保有编号、时间和文本
+        if len(lines) >= 2:  # 只需确保有编号和文本，忽略时间轴
             number = lines[0]  # 字幕序号
-            text = ' '.join(lines[2:])  # 合并多行文本
+            # 从第 2 行开始合并文本，跳过时间轴行
+            text = ' '.join(lines[2:]) if len(lines) > 2 else lines[1]
             subtitles.append((number, text))
     
     return subtitles
@@ -66,7 +69,7 @@ def main():
                 try:
                     # 创建临时目录
                     with tempfile.TemporaryDirectory() as temp_dir:
-                        # 解析 SRT 内容
+                        # 解析 SRT 内容，忽略时间轴
                         subtitles = parse_srt(srt_content)
                         full_text = " ".join([text for _, text in subtitles])
                         audio_files = []
@@ -76,7 +79,7 @@ def main():
                         asyncio.run(text_to_speech(full_text, voice_code, full_audio_file))
                         audio_files.append(full_audio_file)
 
-                        # 为每行字幕生成单独的音频（只根据文本内容，不考虑时间轴）
+                        # 为每行字幕生成单独的音频，仅根据内容，不含首尾静音
                         for number, text in subtitles:
                             output_file = os.path.join(temp_dir, f"subtitle_{number}.mp3")
                             asyncio.run(text_to_speech(text, voice_code, output_file))
