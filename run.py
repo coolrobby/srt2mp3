@@ -28,21 +28,24 @@ def parse_srt(srt_content):
 # 主程序
 def main():
     st.title("SRT 字幕转语音工具")
-    st.write("请粘贴 SRT 字幕内容，选择语音，然后生成 MP3 文件")
+    st.write("请粘贴 SRT 字幕内容，选择音色，然后生成 MP3 文件")
 
-    # 语音选项
+    # 音色选项（具体名称）
     voices = {
-        "中文 (大陆)": "zh-CN-XiaoxiaoNeural",
-        "中文 (台湾)": "zh-TW-HsiaoYuNeural",
-        "英文 (美式)": "en-US-AriaNeural",
-        "英文 (英式)": "en-GB-SoniaNeural"
+        "Xiaoxiao (中文大陆女声)": "zh-CN-XiaoxiaoNeural",
+        "Yunxi (中文大陆男声)": "zh-CN-YunxiNeural",
+        "HsiaoYu (中文台湾女声)": "zh-TW-HsiaoYuNeural",
+        "Aria (美式英语女声)": "en-US-AriaNeural",
+        "Guy (美式英语男声)": "en-US-GuyNeural",
+        "Sonia (英式英语女声)": "en-GB-SoniaNeural",
+        "Ryan (英式英语男声)": "en-GB-RyanNeural"
     }
     
     # 输入框
     srt_content = st.text_area("粘贴 SRT 字幕内容", height=300)
     
-    # 选择语音
-    selected_voice = st.selectbox("选择语音", list(voices.keys()))
+    # 选择音色
+    selected_voice = st.selectbox("选择音色", list(voices.keys()))
     voice_code = voices[selected_voice]
     
     if st.button("生成 MP3"):
